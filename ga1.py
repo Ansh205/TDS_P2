@@ -20,7 +20,7 @@ from datetime import datetime, timedelta
 from bs4 import BeautifulSoup  # type: ignore
 from fastapi import UploadFile  # type: ignore
 import aiofiles
-
+from fastapi import UploadFile, HTTPException
 
 def extract_zip_file(source: str, extract_folder: str) -> str:
     """Extracts a ZIP file from a URL or local path."""
@@ -110,7 +110,7 @@ def GA1_2(question):
 EXT_TO_PARSER = {".js": "babel", ".ts": "typescript", ".json": "json", ".css": "css",
                  ".html": "html", ".md": "markdown", ".yaml": "yaml", ".yml": "yaml"}
 
-
+'''
 async def GA1_3(file: UploadFile):
     try:
         process = await asyncio.create_subprocess_exec(
@@ -124,7 +124,35 @@ async def GA1_3(file: UploadFile):
 
     except Exception as e:
         return {"error": str(e)}
+'''
+async def GA1_3(file: UploadFile):
+    try:
+        # Save the uploaded file
+        file_path = f"/tmp/{file.filename}"
+        with open(file_path, "wb") as buffer:
+            buffer.write(file.file.read())
 
+        # Check if npx, prettier, and sha256sum are installed
+        npx_check = subprocess.run(["npx", "--version"], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        prettier_check = subprocess.run(["npx", "prettier", "--version"], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        sha256_check = subprocess.run(["sha256sum", "--version"], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+
+        # Install if missing
+        if npx_check.returncode != 0 or prettier_check.returncode != 0:
+            subprocess.run(["npm", "install", "-g", "npx", "prettier@3.4.2"])
+        if sha256_check.returncode != 0:
+            subprocess.run(["apt-get", "install", "-y", "coreutils"])
+
+        # Run npx and sha256sum command using subprocess
+        cmd = f"npx -y prettier@3.4.2 {file_path} | sha256sum"
+        result = subprocess.run(cmd, shell=True, capture_output=True, text=True)
+
+        if result.returncode != 0:
+            raise HTTPException(status_code=500, detail=result.stderr)
+
+        return result.stdout.strip().split()[0]
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
 # Let's make sure you can write formulas in Google Sheets. Type this formula into Google Sheets.
 # (It won't work in Excel)= SUM(ARRAY_CONSTRAIN(SEQUENCE(100, 100, 6, 10), 1, 10))
 #     What is the result?
@@ -358,7 +386,59 @@ async def GA1_12(question: str, zip_file: UploadFile):
 # Download  and unzip it into a new folder, then replace all "IITM" ( in upper, lower, or mixed case) with "IIT Madras" in all files. Leave everything as- is - don't change the line endings.
 # What does running cat * | sha256sum in that folder show in bash?
 
+async def GA1_14(question: str, file: UploadFile):
 
+# def GA1_13(file: UploadFile):
+    try:
+        # Validate file input
+        if not file.filename.endswith(".zip"):
+            raise HTTPException(status_code=400, detail="Uploaded file is not a ZIP file.")
+
+        # Save uploaded ZIP file
+        zip_path = f"/tmp/{file.filename}"
+        with open(zip_path, "wb") as buffer:
+            buffer.write(file.file.read())
+
+        # Create extraction directory
+        extract_dir = "/tmp/extracted_files"
+        os.makedirs(extract_dir, exist_ok=True)
+
+        # Extract the ZIP using zipfile
+        with zipfile.ZipFile(zip_path, 'r') as zip_ref:
+            zip_ref.extractall(extract_dir)
+
+        # Perform case-insensitive replacement of "IITM" with "IIT Madras" across all files
+        pattern = re.compile(r"IITM", re.IGNORECASE)
+        
+        for root, _, files in os.walk(extract_dir):
+            for filename in files:
+                file_path = os.path.join(root, filename)
+                
+                with open(file_path, 'r', encoding='utf-8', errors='ignore') as f:
+                    content = f.read()
+
+                # Replace without altering line endings
+                updated_content = pattern.sub("IIT Madras", content)
+
+                with open(file_path, 'w', encoding='utf-8', errors='ignore') as f:
+                    f.write(updated_content)
+
+        # Run cat * | sha256sum to generate the hash
+        # Run cat * | sha256sum and extract only the hash using awk
+        result = subprocess.run(
+            ['bash', '-c', f'cat {extract_dir}/* | sha256sum | awk \'{{print $1}}\'' ],
+            capture_output=True, text=True
+        )
+
+
+        if result.returncode != 0:
+            raise HTTPException(status_code=500, detail=f"Error: {result.stderr.strip()}")
+
+        return result.stdout.strip()
+
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+'''
 async def GA1_14(question: str, zip_file: UploadFile):
     # Step 1: Extract words to replace and the replacement word from the question
     pattern = r'replace all "([^"]+)" \(in upper, lower, or mixed case\) with "([^"]+)" in all files'
@@ -394,7 +474,7 @@ async def GA1_14(question: str, zip_file: UploadFile):
 
     # Return the final SHA-256 hash value
     return sha256_hash.hexdigest()
-
+'''
 # Download and extract it. Use ls with options to list all files in the folder along with their date and file size.
 # What's the total size of all files at least 3352 bytes large and modified on or after Fri, 17 Aug, 2018, 4: 06 am IST?'
 
