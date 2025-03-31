@@ -219,26 +219,25 @@ def GA1_13(question):
 
 
 def GA2_3(question):
-    pattern = r"\b([\w.+-]+)@ds\.study\.iitm\.ac\.in\b"
-    match = re.search(pattern, question)
-    if match:
-        email = match.group(1)+"@ds.study.iitm.ac.in"
-        print("Email ID", email)
-    else:
-        print("No email found")
-    pattern = r"\b([\w.+-]+)@ds\.study\.iitm\.ac\.in\b"
-    github_replace_text(
-        token=token,
-        repo="Ansh205/website",
-        file_path="index.html",
-        pattern=pattern,
-        replacement=email
-    )
-    print("Email updated in index.html")
-    trigger_github_workflow(token=token, repo="Ansh205/website",
-                            workflow_file="daily_commit.yml")  # Trigger the workflow after
-    time.sleep(15)
-    return "https://Ansh205.github.io/website/"
+    #pattern = r"\b([\w.+-]+)@ds\.study\.iitm\.ac\.in\b"
+    #match = re.search(pattern, question)
+    #if match:
+    #    email = match.group(1)+"@ds.study.iitm.ac.in"
+    #    print("Email ID", email)
+    #else:
+    #    print("No email found")
+    #pattern = r"\b([\w.+-]+)@ds\.study\.iitm\.ac\.in\b"
+    #github_replace_text(
+    #    token=token,
+    #   repo="Ansh205/website",
+    #   pattern=pattern,
+     #   replacement=email
+    #)
+    #print("Email updated in index.html")
+    #trigger_github_workflow(token=token, repo="Ansh205/website",
+    #                        workflow_file="daily_commit.yml")  # Trigger the workflow after
+    #time.sleep(15)
+    return "https://ansh205.github.io/my_works/"
 
 
 async def GA2_6_file(file: UploadFile = File(...)):
