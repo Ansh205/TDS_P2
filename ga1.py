@@ -381,7 +381,7 @@ async def GA1_12(question: str, zip_file: UploadFile):
 # Let's make sure you know how to use GitHub. Create a GitHub account if you don't have one. Create a new public repository. Commit a single JSON file called email.json with the value {"email": "22f2001640@ds.study.iitm.ac.in"} and push it.
 # Enter the raw Github URL of email.json so we can verify it. (It might look like https://raw.githubusercontent.com/[GITHUB ID]/[REPO NAME]/main/email.json.)
 
-# def GA1_13(question):
+ 
 
 # Download  and unzip it into a new folder, then replace all "IITM" ( in upper, lower, or mixed case) with "IIT Madras" in all files. Leave everything as- is - don't change the line endings.
 # What does running cat * | sha256sum in that folder show in bash?
@@ -524,14 +524,6 @@ async def GA1_15(question: str, zip_file: UploadFile):
 # Download and extract it. Use mv to move all files under folders into an empty folder. Then rename all files replacing each digit with the next. 1 becomes 2, 9 becomes 0, a1b9c.txt becomes a2b0c.txt.
 # What does running grep . * | LC_ALL=C sort | sha256sum in bash on that folder show?
 
-
-def ensure_directory_exists(path):
-    if os.path.exists(path):
-        shutil.rmtree(path)
-    os.makedirs(path, exist_ok=True)
-
-
-
 async def GA1_16_LINX(file: UploadFile):
     try:
         work_folder = '/tmp/digit_replace_folder'
@@ -668,6 +660,8 @@ async def GA1_16_Vercel( file: UploadFile):
         return sha256_hash
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+    
+
 # Download and extract it. It has 2 nearly identical files, a.txt and b.txt, with the same number of lines.
 # How many lines are different between a.txt and b.txt?
 
