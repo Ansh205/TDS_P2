@@ -238,7 +238,7 @@ def GA2_3(question):
     trigger_github_workflow(token=token, repo="Ansh205/website",
                             workflow_file="daily_commit.yml")  # Trigger the workflow after
     time.sleep(15)
-    return "https://Ansh205.github.io/website/?v=5"
+    return "https://Ansh205.github.io/website/"
 
 
 async def GA2_6_file(file: UploadFile = File(...)):
